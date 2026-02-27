@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simple-webapp
+  name: simple-webapp-slow
   labels:
-    app: simple-webapp
+    app: simple-webapp-slow
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: simple-webapp
+      app: simple-webapp-slow
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -17,11 +17,11 @@ spec:
   template:
     metadata:
       labels:
-        app: simple-webapp
+        app: simple-webapp-slow
     spec:
       containers:
-        - name: simple-webapp
-          image: muraddevops/simple-webapp:latest
+        - name: simple-webapp-slow
+          image: muraddevops/simple-webapp-slow:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -55,11 +55,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: simple-webapp
+  name: simple-webapp-slow
 spec:
   type: ClusterIP
   selector:
-    app: simple-webapp
+    app: simple-webapp-slow
   ports:
     - port: 80
       targetPort: 5000
@@ -68,18 +68,18 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: simple-webapp
+  name: simple-webapp-slow
   annotations:
     kubernetes.io/ingress.class: traefik
 spec:
   rules:
-    - host: webapp.local
+    - host: webapp-slow.local
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: simple-webapp
+                name: simple-webapp-slow
                 port:
                   number: 80
