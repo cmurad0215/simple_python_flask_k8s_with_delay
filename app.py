@@ -11,7 +11,7 @@ def slow_startup():
     print("Starting heavy initialization...")
     time.sleep(60)  # simulate cold start (1 minute)
     ready = True
-    print("Application is ready!")
+    print("Application is ready now!")
 
 # Run startup task in background
 threading.Thread(target=slow_startup).start()
