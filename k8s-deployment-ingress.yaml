@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: simple-webapp
+  labels:
+    app: simple-webapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: simple-webapp
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: simple-webapp
+    spec:
+      containers:
+        - name: simple-webapp
+          image: muraddevops/simple-webapp:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+
+          # Liveness Probe (container restart check)
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # Readiness Probe (traffic routing control)
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: simple-webapp
+spec:
+  type: ClusterIP
+  selector:
+    app: simple-webapp
+  ports:
+    - port: 80
+      targetPort: 5000
+      protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: simple-webapp
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+    - host: webapp.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: simple-webapp
+                port:
+                  number: 80
