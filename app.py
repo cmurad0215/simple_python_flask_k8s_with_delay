@@ -19,7 +19,7 @@ threading.Thread(target=slow_startup).start()
 
 @app.route("/")
 def home():
-    return "Application is running now\n"
+    return "Application is running okay\n"
 
 
 @app.route("/healthz")
